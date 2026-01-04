@@ -227,8 +227,8 @@ can be modified to alter the granular behavior of some notmuch commands. Each
 option will be listed with its default value.
 
 *notmuch_db_path*
-  Path to your notmuch database. More precisely, set this to the directory
-  that contains the `.notmuch` directory.
+  Absolute path to your notmuch database. More precisely, set this to the
+  directory that contains the `.notmuch` directory.
 
   Default value:
     Fetched from `notmuch` config.
