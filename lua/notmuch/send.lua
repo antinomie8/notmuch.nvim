@@ -218,7 +218,7 @@ s.reply = function()
 
   -- Create new draft mail to hold reply
   local sanitized_id = id:gsub('/', '-')
-  local reply_filename = '/tmp/reply-' .. sanitized_id .. '.eml'
+  local reply_filename = vim.fn.tempname() .. '-reply-' .. sanitized_id .. '.eml'
 
   -- Create and edit buffer containing reply file
   local buf = v.nvim_create_buf(true, false)
