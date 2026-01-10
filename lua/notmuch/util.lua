@@ -176,12 +176,28 @@ u.process_msgs_in_thread = function(buf)
   local lineno = 1 -- Start from the top of the buffer
   local last = vim.fn.line('$') -- End at the bottom of the buffer
 
+  local in_header = false -- wether we are inside of a header
+  local buf_vars = {} -- stores key value pairs of mail metadata to set as buffer local vars
+
   while lineno <= last do
     -- Store line contents
     local line = vim.fn.getline(lineno)
 
+    if in_header then
+      -- Closing header field : Delete
+      if string.match(line, '^header}') ~= nil then
+        v.nvim_buf_set_lines(buf, lineno-1, lineno, true, { '' })
+        in_header = false
+      else
+        -- get buffer local variables
+        local keyword, value = string.match(line, '^(%a*):%s*(.*)$')
+        if keyword and value then
+          buf_vars[keyword] = value
+        end
+      end
+
     -- Message start : Store message details in `msg` and remove the line
-    if string.match(line, "^message{") ~= nil then
+    elseif string.match(line, "^message{") ~= nil then
       msg.id = string.match(line, 'id:%S+')
       msg.depth = tonumber(string.match(string.match(line, 'depth:%d+'), '%d+'))
       msg.filename = string.match(line, 'filename:%C+')
@@ -195,15 +211,7 @@ u.process_msgs_in_thread = function(buf)
       indent_depth(buf, lineno, msg.depth)
       line = vim.fn.getline(lineno) -- Add fold start identifier '{{{'
       v.nvim_buf_set_lines(buf, lineno-1, lineno, true, { line, msg.id .. ' {{{' })
-
-    -- Pass over "Subject" field and next header fields
-    elseif string.match(line, '^Subject:') ~= nil then
-      lineno = lineno + 2
-      last = last + 1
-
-    -- Closing header field : Delete
-    elseif string.match(line, '^header}') ~= nil then
-      v.nvim_buf_set_lines(buf, lineno-1, lineno, true, { '' })
+      in_header = true
 
     -- Closing message field : Replace with folding closing "}}}"
     elseif string.match(line, '^message}') ~= nil then
@@ -220,6 +228,11 @@ u.process_msgs_in_thread = function(buf)
 
     -- Increment lineno to inspect the next line, next loop
     lineno = lineno + 1
+  end
+
+  -- set buffer local variables
+  for keyword, value in pairs(buf_vars) do
+    vim.b[buf][keyword] = value
   end
 end
 
