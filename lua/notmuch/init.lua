@@ -166,8 +166,9 @@ nm.show_thread = function(s)
   v.nvim_buf_set_name(buf, "thread:" .. threadid)
   v.nvim_win_set_buf(0, buf)
 
-  local lines = require('notmuch.thread').show_thread(threadid)
+  local lines, metadata = require('notmuch.thread').show_thread(threadid)
   v.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.b.notmuch_thread = metadata
 
   -- Insert hint message at the top of the buffer
   local hint_text = "Hints: <Enter>: Toggle fold message | <Tab>: Next message | <S-Tab>: Prev message | q: Close | a: See attachment parts"
