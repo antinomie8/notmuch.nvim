@@ -59,7 +59,7 @@ H.default_view_handler = function(attachment)
   local ext = path:match('%.([^%.]+)$') or ''
 
   -- HTML files (most common)
-  if filetype:match('text/html') or ext:match('^html?$') then
+  if filetype:match('^text/html$') or ext:match('^html?$') then
     return try_commands({
       { tool = 'w3m',    command = function(p) return { 'w3m', '-T', 'text/html', '-dump', p } end },
       { tool = 'lynx',   command = function(p) return { 'lynx', '-dump', '-nolist', p } end },
@@ -68,7 +68,7 @@ H.default_view_handler = function(attachment)
   end
 
   -- PDF files
-  if filetype:match('application/pdf') or ext == 'pdf' then
+  if filetype:match('^application/pdf$') or ext == 'pdf' then
     return try_commands({
       { tool = 'pdftotext', command = function(p) return { 'pdftotext', '-layout', p, '-' } end },
       { tool = 'mutool',    command = function(p) return { 'mutool', 'draw', '-F', 'txt', p } end },
@@ -95,7 +95,7 @@ H.default_view_handler = function(attachment)
   end
 
   -- Markdown
-  if filetype:match('text/markdown') or ext:match('^md$') then
+  if filetype:match('^text/markdown$') or ext:match('^md$') then
     return try_commands({
       { tool = 'pandoc', command = function(p) return { 'pandoc', '-t', 'plain', p } end },
       { tool = 'mdcat',  command = function(p) return { 'mdcat', p } end },
