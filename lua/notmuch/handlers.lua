@@ -40,7 +40,7 @@ H.default_view_handler = function(attachment)
         if type(command) == 'table' then
 					local obj = vim.system(command):wait()
 					output = obj.stdout
-					success = obj.stderr
+					success = (obj.code == 0)
         else
           output = vim.fn.system(command)
 					success = (vim.v.shell_error == 0)
