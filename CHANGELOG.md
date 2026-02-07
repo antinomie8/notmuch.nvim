@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Ported command-line completion functions from Vimscript to Lua module (`completion.lua`)
   - Completion functions now filter results based on user input for better UX
   - Removed dependency on Vimscript autoload functions and global Vim command registration
+- Attachment view handler now uses `vim.system()` for table-format commands (more secure and modern)
+- MIME type pattern matching in attachment handlers now uses anchored patterns for more precise matching and better performance
 
 ### Deprecated
 
@@ -55,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Correct notmuch version number detection (checks API version 0.32 instead of library version 5.4)
+- Attachment view handler now correctly detects command success using exit codes instead of relying solely on `vim.v.shell_error`
 
 ### Documentation
 
