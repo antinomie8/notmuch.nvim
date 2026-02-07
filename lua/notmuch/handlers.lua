@@ -35,15 +35,15 @@ H.default_view_handler = function(attachment)
       -- Check if the tool exists
       if vim.fn.executable(cmd.tool) == 1 then
         local output
-				local success
-				local command = cmd.command(path)
+        local success
+        local command = cmd.command(path)
         if type(command) == 'table' then
-					local obj = vim.system(command):wait()
-					output = obj.stdout
-					success = (obj.code == 0)
+          local obj = vim.system(command):wait()
+          output = obj.stdout
+          success = (obj.code == 0)
         else
           output = vim.fn.system(command)
-					success = (vim.v.shell_error == 0)
+          success = (vim.v.shell_error == 0)
         end
 
         if success then
