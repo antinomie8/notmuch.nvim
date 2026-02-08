@@ -102,10 +102,13 @@ nm.search_terms = function(search, jumptothreadid)
     nm.show_thread(search)
     return true
   end
-  local bufno = vim.fn.bufnr(search)
+  -- Use exact match for buffer name to avoid partial matches
+  -- Escape special regex characters in the search term
+  local escaped_search = vim.fn.escape(search, '^$.*~[]\\')
+  local bufno = vim.fn.bufnr('^' .. escaped_search .. '$')
   if bufno ~= -1 then
-    -- Delete the existing buffer to ensure fresh content
-    vim.api.nvim_buf_delete(bufno, { force = true })
+    v.nvim_win_set_buf(0, bufno)
+    return true
   end
   local buf = v.nvim_create_buf(true, true)
   v.nvim_buf_set_name(buf, search)
