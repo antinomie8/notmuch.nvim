@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-02-11
+
 ### Added
 
 - HTML body rendering via `w3m` for `multipart/alternative` emails
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configuration option `suppress_deprecation_warning` to suppress API deprecation warnings
 - Optional email address argument for `:Inbox` command to filter by recipient (`to:` field)
   - Includes autocomplete for email addresses from notmuch database
+- New `"terminal"` sync mode for `sync.sync_mode` — real PTY terminal with stdin support for GPG passphrase prompts and OAuth flows
 
 ### Changed
 
@@ -60,6 +63,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Attachment view handler now correctly detects command success using exit codes instead of relying solely on `vim.v.shell_error`
 - Buffer validity checks before write operations to prevent errors when buffer is deleted during async operations
 - Exact buffer name matching using escaped regex patterns to prevent partial matches when switching to existing search buffers
+- Corrected thread count upon search completion
+- Terminal window positioning for sync (bottom-right)
+
+### Performance
+
+- Kill notmuch search process when the buffer is deleted (avoids orphaned processes)
+- Anchored patterns in attachment handlers for more precise MIME type matching
 
 ### Documentation
 
@@ -156,6 +166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial (informal) baseline release.
 
-[Unreleased]: https://github.com/yousefakbar/notmuch.nvim/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/yousefakbar/notmuch.nvim/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/yousefakbar/notmuch.nvim/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/yousefakbar/notmuch.nvim/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/yousefakbar/notmuch.nvim/commit/e4b0a6cbbe5e5281f7a6a8fa43c3e776d3eaec64
