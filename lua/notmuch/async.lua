@@ -50,6 +50,7 @@ a.run_notmuch_search = function(search, buf, on_complete)
       -- Check if buffer is still valid before writing
       -- This prevents errors when buffer is deleted (e.g., during refresh)
       if not vim.api.nvim_buf_is_valid(buf) then
+        handle:kill()
         return
       end
 
