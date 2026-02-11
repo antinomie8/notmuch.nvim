@@ -58,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Correct notmuch version number detection (checks API version 0.32 instead of library version 5.4)
 - Attachment view handler now correctly detects command success using exit codes instead of relying solely on `vim.v.shell_error`
+- Buffer validity checks before write operations to prevent errors when buffer is deleted during async operations
+- Exact buffer name matching using escaped regex patterns to prevent partial matches when switching to existing search buffers
 
 ### Documentation
 
