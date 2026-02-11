@@ -128,7 +128,8 @@ nm.search_terms = function(search, jumptothreadid)
       return
     end
     -- Completion logic
-    if vim.fn.getline(2) ~= '' then num_threads_found = vim.fn.line('$') - 1 end
+    local line_count = v.nvim_buf_line_count(buf)
+    if line_count > 1 then num_threads_found = line_count - 1 end
     print('Found ' .. num_threads_found .. ' threads')
     vim.fn.search(jumptothreadid)
   end)
