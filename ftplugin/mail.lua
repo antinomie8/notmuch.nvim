@@ -1,4 +1,4 @@
-if vim.startswith(vim.api.nvim_buf_get_name(0), "thread:") then
+if vim.startswith(vim.fs.basename(vim.api.nvim_buf_get_name(0)), "thread:") then
   local tag = require("notmuch.tag")
 
   vim.opt_local.foldmethod = "marker"
