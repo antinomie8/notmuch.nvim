@@ -252,6 +252,48 @@ u.find_cursor_msg_id = function()
   return nil
 end
 
+function u.try_commands(commands, path)
+  for _, cmd in ipairs(commands) do
+    local output
+    local success
+    local error
+
+    if cmd.callback then
+      success, output, error = cmd.callback(path)
+    elseif cmd.command then
+      local command = cmd.command(path)
+      if type(command) == "table" then
+        -- use vim.system
+        -- { ... }: convert to { { ... } }
+        if #command > 0 and type(command[1]) == "string" then
+          command = { command }
+        end
+        -- { { ... }, { ... } }: pipe the output of a command to the next
+        for _, cmd in ipairs(command) do
+          local obj = vim.system(cmd, { stdin = output }):wait()
+          output = obj.stdout
+          success = (obj.code == 0)
+          error = obj.stderr
+          if not success then break end
+        end
+      elseif type(command) == "string" then
+        -- use vim.fn.system
+        output = vim.fn.system(command)
+        success = (vim.v.shell_error == 0)
+      end
+    end
+
+    if success then
+      return output
+    else
+      if error and cmd.verbose then
+        vim.notify("failed to execute " .. (cmd.tool or "") .. ": " .. error, vim.log.levels.ERROR)
+      end
+    end
+  end
+  return nil
+end
+
 return u
 
 -- vim: tabstop=2:shiftwidth=2:expandtab:foldmethod=indent

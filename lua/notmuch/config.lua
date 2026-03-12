@@ -60,6 +60,7 @@ C.defaults = function()
     open_handler = function(attachment)
       require('notmuch.handlers').default_open_handler(attachment)
     end,
+    view_handlers = {},
     view_handler = function(attachment)
       return require('notmuch.handlers').default_view_handler(attachment)
     end,
