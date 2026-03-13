@@ -32,7 +32,7 @@ end, {
 
 vim.keymap.set("n", "<CR>", nm.show_thread, { buffer = true })
 vim.keymap.set("n", "r", r.refresh_search_buffer, { buffer = true })
-vim.keymap.set("n", "q", "<Cmd>bwipeout<CR>", { buffer = true })
+vim.keymap.set("n", "q", require("notmuch.util").quit_or_bwipeout, { buffer = true })
 vim.keymap.set("n", "%", s.sync_maildir, { buffer = true })
 vim.keymap.set("n", "+", ":TagAdd<Space>", { buffer = true })
 vim.keymap.set("x", "+", ":TagAdd<Space>", { buffer = true })

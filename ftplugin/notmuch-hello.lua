@@ -5,7 +5,7 @@ local s = require("notmuch.sync")
 
 vim.keymap.set("n", "<CR>", function() nm.search_terms("tag:" .. vim.api.nvim_win_get_cursor(0)[0]) end, { buffer = true })
 vim.keymap.set("n", "c", function() nm.count("tag:" .. vim.api.nvim_win_get_cursor(0)[0]) end, { buffer = true })
-vim.keymap.set("n", "q", "<Cmd>bwipeout<CR>", { buffer = true })
+vim.keymap.set("n", "q", require("notmuch.util").quit_or_bwipeout, { buffer = true })
 vim.keymap.set("n", "r", r.refresh_hello_buffer, { buffer = true })
 vim.keymap.set("n", "C", require("notmuch.send").compose, { buffer = true })
 vim.keymap.set("n", "%", s.sync_maildir, { buffer = true })

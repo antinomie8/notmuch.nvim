@@ -35,7 +35,7 @@ if vim.startswith(vim.fs.basename(vim.api.nvim_buf_get_name(0)), "thread:") then
   vim.keymap.set("n", "r", require("notmuch.refresh").refresh_thread_buffer, { buffer = true })
   vim.keymap.set("n", "C", require("notmuch.send").compose, { buffer = true })
   vim.keymap.set("n", "R", require("notmuch.send").reply, { buffer = true })
-  vim.keymap.set("n", "q", "<Cmd>bwipeout<CR>", { buffer = true })
+  vim.keymap.set("n", "q", require("notmuch.util").quit_or_bwipeout, { buffer = true })
   vim.keymap.set("n", "+", ":TagAdd<Space>", { buffer = true })
   vim.keymap.set("n", "-", ":TagRm<Space>", { buffer = true })
   vim.keymap.set("n", "=", ":TagToggle<Space>", { buffer = true })

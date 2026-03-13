@@ -223,6 +223,18 @@ u.process_msgs_in_thread = function(buf)
   end
 end
 
+--- attempts to quit if all the other buffer remaining are unnamed
+function u.quit_or_bwipeout()
+  local curbuf = vim.api.nvim_get_current_buf()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if buf ~= curbuf and vim.api.nvim_buf_get_name(buf) ~= "" then
+      vim.cmd.bwipeout()
+      return
+    end
+  end
+  vim.cmd.quit()
+end
+
 -- Retrieves the id of the message under cursor
 --
 -- This function fetches the id of the message being viewed under the cursor by
