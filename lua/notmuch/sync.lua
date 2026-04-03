@@ -176,7 +176,7 @@ s.sync_maildir = function()
     vim.fn.chansend(term_job, sync_cmd .. " ; exit\n")
 
     -- Start in insert mode for immediate interaction (e.g., passphrase prompt)
-    vim.cmd("startinsert")
+    vim.cmd.startinsert()
 
     return
   end

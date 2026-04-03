@@ -260,7 +260,7 @@ a.save_attachment_part = function(savedir, prompt_user)
 
     -- Prompt user for save location
     filepath = vim.fn.input("Save file: ", default_path, "file")
-    vim.cmd("redraw")
+    vim.cmd.redraw()
 
     -- If user cancels (ESC or empty input), return nil
     if filepath == "" then
@@ -295,7 +295,7 @@ a.save_attachment_part = function(savedir, prompt_user)
     -- Check if file already exists - If so, prompt for confirmation
     if vim.fn.filereadable(filepath) == 1 then
       local confirm = vim.fn.confirm("File exists. Overwrite?", "&Yes\n&No", 2)
-      vim.cmd("redraw")
+      vim.cmd.redraw()
       if confirm ~= 1 then
         vim.notify("Save cancelled", vim.log.levels.INFO)
         return nil
