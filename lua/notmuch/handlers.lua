@@ -9,14 +9,14 @@ H.default_open_handler = function(attachment)
   local open_cmd
   local sysname = vim.uv.os_uname()
 
-  if sysname.sysname == 'Darwin' then
-    open_cmd = 'open'
-  elseif sysname.sysname == 'Linux' then
-    open_cmd = 'xdg-open'
-  elseif sysname.sysname:match('Windows') then
-    open_cmd = 'start'
+  if sysname.sysname == "Darwin" then
+    open_cmd = "open"
+  elseif sysname.sysname == "Linux" then
+    open_cmd = "xdg-open"
+  elseif sysname.sysname:match("Windows") then
+    open_cmd = "start"
   else
-    open_cmd = 'xdg-open' -- fallback
+    open_cmd = "xdg-open" -- fallback
   end
 
   -- Execute

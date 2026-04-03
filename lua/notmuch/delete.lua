@@ -1,6 +1,6 @@
 local d = {}
 local v = vim.api
-local nm = require("notmuch")
+local nm = require("notmuch.notmuch")
 local r = require("notmuch.refresh")
 
 local confirm_purge = function()

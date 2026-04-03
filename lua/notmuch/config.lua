@@ -1,106 +1,95 @@
-local C = {}
+local config = {}
 
--- Define default configuration of `notmuch.nvim`
---
--- This function defines the default configuration options of the plugin
--- including keymaps. The defaults can be overridden with options `opts` passed
--- by the user in the `setup()` function.
-C.defaults = function()
-  -- Helper to safely get notmuch config variables
-  local function get_notmuch_config(key, fallback)
-    local result = vim.fn.system('notmuch config get ' .. key):gsub('\n', '')
-    if vim.v.shell_error ~= 0 or result == '' or result:match('^%s*$') or result:match('notmuch setup') then
-      if result:match('command not found') or result:match('not found') then
-	vim.notify('notmuch command not found. Please install notmuch.', vim.log.levels.ERROR)
-      end
-      return fallback
-    end
-    return result
-  end
+---@return NotmuchConfig?
+local function get_defaults()
+	---@param key string config key to ask notmuch for
+	local function get_notmuch_config(key)
+		local handler = vim.system({ "notmuch", "config", "get", key }):wait()
+		if handler.code ~= 0 then
+			if not vim.fn.executable("notmuch") then
+				vim.notify("notmuch command not found. Please install notmuch.", vim.log.levels.ERROR)
+			end
+		else
+			return vim.trim(handler.stdout) -- remove trailing '\n'
+		end
+	end
 
-  local name = get_notmuch_config('user.name', nil)
-  local email = get_notmuch_config('user.primary_email', nil)
-  local db_path = get_notmuch_config('database.path', nil)
+	local name = get_notmuch_config("user.name")
+	local email = get_notmuch_config("user.primary_email")
+	local db_path = get_notmuch_config("database.path")
 
-  -- Validate required configuration form notmuch and fail-fast
-  if not db_path then
-    vim.notify(
-      'notmuch.nvim: database.path not configured.\n' ..
-      'Please run: notmuch setup',
-      vim.log.levels.ERROR
-    )
-    return nil
-  end
+	-- Validate required configuration form notmuch and fail-fast
+	if not db_path then
+		vim.notify(
+			"notmuch.nvim: database.path not configured.\n" ..
+			"Please run: notmuch setup",
+			vim.log.levels.ERROR
+		)
+		return
+	end
 
-  -- Validate user name and email from notmuch config
-  if not name or not email then
-    vim.notify(
-      'notmuch.nvim: user.name or user.primary_email not configured.\n' ..
-      'Please run: notmuch setup',
-      vim.log.levels.WARN
-    )
-    name = name or 'User'
-    email = email or 'user@localhost'
-  end
+	-- Validate user name and email from notmuch config
+	if not name or not email then
+		vim.notify(
+			"notmuch.nvim: user.name or user.primary_email not configured.\n" ..
+			"Please run: notmuch setup",
+			vim.log.levels.WARN
+		)
+		name = name or "User"
+		email = email or "user@localhost"
+	end
 
-  local defaults = {
-    notmuch_db_path = db_path,
-    from = name .. ' <' .. email .. '>',
-    maildir_sync_cmd = 'mbsync -a',
-    open_cmd = 'xdg-open',
-    logfile = nil,
-    sync = {
-      sync_mode = "buffer",  -- "background" | "buffer" | "terminal"
-      --   background: Silent sync in background, notifications only
-      --   buffer: Structured async output in dedicated buffer, no stdin (default)
-      --   terminal: Real PTY terminal with stdin support for GPG/OAuth prompts
-    },
-    suppress_deprecation_warning = false, -- Used for API deprecation warning suppression
-    render_html_body = false, -- True means prioritize displaying rendered HTML
-    open_handler = function(attachment)
-      require('notmuch.handlers').default_open_handler(attachment)
-    end,
-    view_handlers = {},
-    view_handler = function(attachment)
-      return require('notmuch.handlers').default_view_handler(attachment)
-    end,
-    keymaps = { -- This should capture all notmuch.nvim related keymappings
-      sendmail = '<C-g><C-g>',
-      attachment_window = '<C-g><C-a>',
-    },
-  }
-  return defaults
+	---@class NotmuchConfig
+	local defaults = {
+		notmuch_db_path = db_path,
+		from = name .. " <" .. email .. ">",
+		maildir_sync_cmd = "mbsync -a",
+		open_cmd = "xdg-open",
+		logfile = nil,
+		sync = {
+			sync_mode = "buffer",  -- "background" | "buffer" | "terminal"
+			--   background: Silent sync in background, notifications only
+			--   buffer: Structured async output in dedicated buffer, no stdin (default)
+			--   terminal: Real PTY terminal with stdin support for GPG/OAuth prompts
+		},
+		suppress_deprecation_warning = false, -- Used for API deprecation warning suppression
+		render_html_body = false, -- True means prioritize displaying rendered HTML
+		open_handler = function(attachment)
+			require("notmuch.handlers").default_open_handler(attachment)
+		end,
+		view_handlers = {},
+		view_handler = function(attachment)
+			return require("notmuch.handlers").default_view_handler(attachment)
+		end,
+		keymaps = { -- This should capture all notmuch.nvim related keymappings
+			sendmail = "<C-g><C-g>",
+			attachment_window = "<C-g><C-a>",
+		},
+	}
+	return defaults
 end
 
--- Setup config for `notmuch.nvim`
---
--- This function sets up the configuration options which control the behavior of
--- the plugin. These options are mainly controlled by `defaults()` but can be
--- overridden by the user with the `opts` table passed via their package manager
--- which will pass it through the `init.setup()` function on startup.
---
----@param opts table: contains user override configuration options
---
----@usage: see `init.lua`'s `setup()` function for invocation
-C.setup = function(opts)
-  local options = opts or {}
-  local defaults = C.defaults()
+---@param opts NotmuchConfig user configuration
+---@return boolean success wether the configuration loading succeeded
+config.setup = function(opts)
+	local options = opts or {}
+	local defaults = get_defaults()
 
-  if not defaults then
-    vim.notify(
-      'notmuch.nvim: Failed to load. Please configure notmuch first.',
-      vim.log.levels.ERROR
-    )
-    return false
-  end
+	if not defaults then
+		vim.notify(
+			"notmuch.nvim: Failed to load. Please configure notmuch first.",
+			vim.log.levels.ERROR
+		)
+		return false
+	end
 
-  -- If `notmuch_db_path` is set by user, expand it in case of tildes, etc.
-  if options.notmuch_db_path then
-    options.notmuch_db_path = vim.fn.expand(options.notmuch_db_path)
-  end
+	-- If `notmuch_db_path` is set by user, expand it in case of tildes, etc.
+	if opts.notmuch_db_path then
+		options.notmuch_db_path = vim.fn.expand(options.notmuch_db_path)
+	end
 
-  C.options = vim.tbl_deep_extend('force', defaults, options)
-  return true
+	config.options = vim.tbl_deep_extend("force", defaults, options)
+	return true
 end
 
-return C
+return config
