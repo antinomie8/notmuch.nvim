@@ -1,5 +1,4 @@
-local attach = require("notmuch.attach")
-vim.keymap.set("n", "q", "<Cmd>bwipeout<CR>", { buffer = true })
-vim.keymap.set("n", "v", attach.view_attachment_part, { buffer = true })
-vim.keymap.set("n", "o", attach.open_attachment_part, { buffer = true })
+vim.keymap.set("n", "q", function() require("notmuch.util").quit_or_bwipeout() end, { buffer = true })
+vim.keymap.set("n", "v", function() require("nomtuch.attach").view_attachment_part() end, { buffer = true })
+vim.keymap.set("n", "o", function() require("nomtuch.attach").open_attachment_part() end, { buffer = true })
 vim.keymap.set("n", "s", function() require("notmuch.attach").save_attachment_part(nil, true) end, { buffer = true })
