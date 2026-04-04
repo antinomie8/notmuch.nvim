@@ -160,56 +160,66 @@ end
 ---@usage
 --   require('notmuch.send').sendmail('/tmp/my_new_email.eml')
 s.sendmail = function(filename)
-	if not vim.loop.fs_stat(filename) then
+	if not vim.uv.fs_stat(filename) then
 		vim.notify("❌ Email file not found: " .. filename, vim.log.levels.ERROR)
 		return false
 	end
 
 	-- Build msmtp command
-	local cmd_parts = { "msmtp", "-t", "--read-envelope-from" }
+	local cmd = { "msmtp", "-t", "--read-envelope-from" }
 	if config.options.logfile then
-		table.insert(cmd_parts, "--logfile=" .. vim.fn.shellescape(config.options.logfile))
+		table.insert(cmd, "--logfile=" .. vim.fn.shellescape(config.options.logfile))
 	end
-	local msmtp_cmd = table.concat(cmd_parts, " ") .. " <" .. vim.fn.shellescape(filename)
-
 	vim.notify("📤 Sending email via msmtp...", vim.log.levels.INFO)
 
 	-- Open blank terminal first (reliable PTY handling for interactive input)
-	vim.cmd("botright 15split | terminal")
-	local term_buf = v.nvim_get_current_buf()
-	local term_job = vim.b.terminal_job_id
+	if config.options.send.terminal then
+		local msmtp_cmd = table.concat(cmd, " ") .. " <" .. vim.fn.shellescape(filename)
 
-	-- Set up TermClose autocmd BEFORE sending command to avoid race condition
-	-- Note: Using pattern='*' instead of buffer=term_buf due to Neovim bug where
-	-- buffer-specific TermClose doesn't fire reliably on terminal buffers
-	local aug = v.nvim_create_augroup("NotmuchSendmail_" .. term_buf, { clear = true })
-	v.nvim_create_autocmd("TermClose", {
-		group = aug,
-		pattern = "*",
-		once = true,
-		callback = function(ev)
-			-- Only process TermClose for our specific terminal buffer
-			if ev.buf ~= term_buf then
-				return false
-			end
+		vim.cmd("botright 15split | terminal")
+		local term_buf = v.nvim_get_current_buf()
+		local term_job = vim.b.terminal_job_id
 
-			-- Get exit code from v:event.status
-			local exit_code = vim.v.event.status or -1
+		-- Set up TermClose autocmd BEFORE sending command to avoid race condition
+		-- Note: Using pattern='*' instead of buffer=term_buf due to Neovim bug where
+		-- buffer-specific TermClose doesn't fire reliably on terminal buffers
+		local aug = v.nvim_create_augroup("NotmuchSendmail_" .. term_buf, { clear = true })
+		v.nvim_create_autocmd("TermClose", {
+			group = aug,
+			pattern = "*",
+			once = true,
+			callback = function(ev)
+				-- Only process TermClose for our specific terminal buffer
+				if ev.buf ~= term_buf then
+					return false
+				end
 
-			-- Defer notification on success because of buffer close redraw
-			if exit_code == 0 then
-				vim.defer_fn(function() vim.notify("✅ Email sent successfully", vim.log.levels.INFO) end, 500)
+				-- Get exit code from v:event.status
+				local exit_code = vim.v.event.status or -1
+
+				-- Defer notification on success because of buffer close redraw
+				if exit_code == 0 then
+					vim.defer_fn(function() vim.notify("✅ Email sent successfully", vim.log.levels.INFO) end, 500)
+				else
+					vim.notify("❌ Failed to send email (exit code: " .. exit_code .. ")", vim.log.levels.ERROR)
+				end
+			end,
+		})
+
+		-- Send the command to the terminal, then exit shell to trigger TermClose
+		vim.fn.chansend(term_job, msmtp_cmd .. " ; exit\n")
+
+		-- Start in insert mode for immediate interaction (e.g. passphrase prompt)
+		vim.cmd.startinsert()
+	else
+		vim.system(cmd, { stdin = u.loadfile(filename) }, function(obj)
+			if obj.code == 0 then
+				vim.notify("✅ Email sent successfully", vim.log.levels.INFO)
 			else
-				vim.notify("❌ Failed to send email (exit code: " .. exit_code .. ")", vim.log.levels.ERROR)
+				vim.notify("❌ Failed to send email: " .. vim.log.levels.ERROR)
 			end
-		end,
-	})
-
-	-- Send the command to the terminal, then exit shell to trigger TermClose
-	vim.fn.chansend(term_job, msmtp_cmd .. " ; exit\n")
-
-	-- Start in insert mode for immediate interaction (e.g. passphrase prompt)
-	vim.cmd.startinsert()
+		end)
+	end
 
 	return true
 end

@@ -1,10 +1,10 @@
 local a = {}
 
----@brief Runs `notmuch search` asynchronously
+--- This function leverages the libuv library to spawn a subprocess and
+--- asynchronously run the `notmuch` search query in the background so it does
+--- not block nvim's event loop and allow seamless UX while results flow in
 ---
----This function leverages the `vim.loop` library to spawn a subprocess and
----asynchronously run the `notmuch` search query in the background so it does
----not block `nvim`s event loop and allow seamless UX while results flow in
+---@brief Runs `notmuch search` asynchronously
 ---
 ---@param search string: search term to query. see `notmuch-search-terms(7)`
 ---@param buf integer: refers to the buffer id to write the output to
@@ -21,7 +21,6 @@ a.run_notmuch_search = function(search, buf, on_complete)
 	local stdout = vim.uv.new_pipe(false)
 	local stderr = vim.uv.new_pipe(false)
 
-	-- Spawn subprocess using vim.loop (deprecated?)
 	local handle
 	handle = vim.uv.spawn("notmuch", {
 		args = { "search", search },
@@ -63,7 +62,7 @@ a.run_notmuch_search = function(search, buf, on_complete)
 	end))
 
 	-- Log errors from stderr
-	vim.loop.read_start(stderr, vim.schedule_wrap(function(err, _)
+	vim.uv.read_start(stderr, vim.schedule_wrap(function(err, _)
 		if err then
 			vim.notify("ERROR: " .. err)
 		end

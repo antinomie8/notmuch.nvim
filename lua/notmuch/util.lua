@@ -71,8 +71,7 @@ function u.validate_attachment_file(path)
 
   file:close()
 
-  -- Use vim.loop to check if it's a regular file (not directory/special file)
-  local stat = vim.loop.fs_stat(path)
+  local stat = vim.uv.fs_stat(path)
   if not stat then
     return false, "Unable to read file metadata"
   end
@@ -306,6 +305,17 @@ function u.try_commands(commands, path)
     end
   end
   return nil
+end
+
+---@param path string path to file to load
+---@return string? content file contents
+function u.loadfile(path)
+  local fd = vim.uv.fs_open(path, "r", 438)
+  if not fd then return end
+  local stat = vim.uv.fs_fstat(fd)
+  local content = stat and vim.uv.fs_read(fd, stat.size, 0) or nil
+  vim.uv.fs_close(fd)
+  return content
 end
 
 return u

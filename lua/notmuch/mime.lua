@@ -3,15 +3,15 @@ local u = require("notmuch.util")
 local v = vim.api
 
 
---- Generates a mime attachment table
+---Generates a mime attachment table
 ---
---- This function takes in a list of paths, validates each file exists and is
---- readable, gets the mime type, and sets the encoding. If any file is invalid,
---- throws an error to prevent sending email with corrupted attachments.
+---This function takes in a list of paths, validates each file exists and is
+---readable, gets the mime type, and sets the encoding. If any file is invalid,
+---throws an error to prevent sending email with corrupted attachments.
 ---
---- @param paths table: list of file path strings
---- @return table: table of mime attachments
---- @throws error if any attachment file is invalid
+---@param paths table: list of file path strings
+---@return table: table of mime attachments
+---@throws error if any attachment file is invalid
 m.create_mime_attachments = function(paths)
 	local mimes = {}
 	local invalid_files = {}  -- Collect all errors for better UX
