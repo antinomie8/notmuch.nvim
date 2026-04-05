@@ -1,22 +1,26 @@
 local a = {}
 
---- This function leverages the libuv library to spawn a subprocess and
---- asynchronously run the `notmuch` search query in the background so it does
---- not block nvim's event loop and allow seamless UX while results flow in
+---This function leverages the libuv library to spawn a subprocess and
+---asynchronously run the `notmuch` search query in the background so it does
+---not block nvim's event loop and allow seamless UX while results flow in
 ---
 ---@brief Runs `notmuch search` asynchronously
 ---
+---@class SearchOpts
+---@field buf integer: refers to the buffer id to write the output to
+---@field lbegin integer: initial line number to start writing
 ---@param search string: search term to query. see `notmuch-search-terms(7)`
----@param buf integer: refers to the buffer id to write the output to
+---@param opts SearchOpts
 ---@param on_complete function: callback function to execute once process completes
 ---
----@usage
 ---```lua
 ---require("notmuch.async").run_notmuch_search("tag:inbox", 0, function()
 ---  print("Notmuch search process completed.")
 ---end)
 ---```
-a.run_notmuch_search = function(search, buf, on_complete)
+function a.run_notmuch_search(search, opts, on_complete)
+	local buf = opts.buf
+	local lnum = opts.lbegin
 	-- Set up pipes for stdout and stderr to capture command output
 	local stdout = vim.uv.new_pipe(false)
 	local stderr = vim.uv.new_pipe(false)
@@ -46,6 +50,11 @@ a.run_notmuch_search = function(search, buf, on_complete)
 			local lines = vim.split(partial_data, "\n")
 			-- collect incomplete line at the tail of lines
 			partial_data = table.remove(lines)
+			for i, l in ipairs(lines) do
+				if vim.b.aa then
+					lines[i] = "a" .. l
+				end
+			end
 
 			-- Check if buffer is still valid before writing
 			-- This prevents errors when buffer is deleted (e.g., during refresh)
@@ -56,10 +65,18 @@ a.run_notmuch_search = function(search, buf, on_complete)
 
 			-- Paste lines into the tail of `buf`
 			vim.bo[buf].modifiable = true
-			vim.api.nvim_buf_set_lines(buf, -1, -1, false, lines)
+			vim.api.nvim_buf_set_lines(buf, lnum, lnum + #lines, false, lines)
+			vim.bo[buf].modifiable = false
+			lnum = lnum + #lines
+		else
+			-- search completed: remove tail of buffer (there might be duplicate
+			-- messages at the end if others got deleted)
+			vim.bo[buf].modifiable = true
+			vim.api.nvim_buf_set_lines(buf, lnum, -1, false, {})
 			vim.bo[buf].modifiable = false
 		end
 	end))
+
 
 	-- Log errors from stderr
 	vim.uv.read_start(stderr, vim.schedule_wrap(function(err, _)

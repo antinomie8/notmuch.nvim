@@ -21,61 +21,57 @@ nm.notmuch_hello = function()
 	print("Welcome to Notmuch.nvim! Choose a tag to search it.")
 end
 
--- Conducts a `notmuch search` operation
+---Conducts a `notmuch search` operation
 --
--- This function takes a search term, runs the query against your notmuch
--- database **asynchronously** and returns the list of thread results in a
--- buffer for the user to browse
---
----@param search string: search terms matching format from
---                       `notmuch-search-terms(7)`
----@param jumptothreadid string?: jump to thread id after search
---
----@usage
--- lua require('notmuch').search_terms('tag:inbox')
-nm.search_terms = function(search, jumptothreadid)
-	local num_threads_found = 0
+---This function takes a search term, runs the query against your notmuch
+---database asynchronously and returns the list of thread results in a
+---buffer for the user to browse
+---
+---```lua
+---require('notmuch').search_terms('tag:inbox')
+---```
+---
+---@param search string search terms matching format from `notmuch-search-terms(7)`
+---@param jumptothreadid string? jump to thread id after search
+function nm.search_terms(search, jumptothreadid)
 	if search == "" then
-		return nil
+		return
 	elseif string.match(search, "^thread:%S+$") ~= nil then
 		nm.show_thread(search)
-		return true
+		return
 	end
 	-- Use exact match for buffer name to avoid partial matches
 	-- Escape special regex characters in the search term
+	local buf
 	local escaped_search = vim.fn.escape(search, "^$.*~[]\\")
 	local bufno = vim.fn.bufnr("^" .. escaped_search .. "$")
 	if bufno ~= -1 then
-		-- Buffer exists, switch to it without refreshing
-		-- This preserves cursor position and navigation state
-		-- Users can press 'r' to explicitly refresh if needed
 		vim.api.nvim_win_set_buf(0, bufno)
-		return true
+		buf = bufno
+	else
+		buf = vim.api.nvim_create_buf(true, true)
+		vim.api.nvim_buf_set_name(buf, search)
+		vim.api.nvim_win_set_buf(0, buf)
 	end
-	local buf = vim.api.nvim_create_buf(true, true)
-	vim.api.nvim_buf_set_name(buf, search)
-	vim.api.nvim_win_set_buf(0, buf)
 
 	local hint_text = "Hints: <Enter>: Open thread | q: Close | r: Refresh | " ..
 	                  "%: Sync maildir | a: Archive | A: Archive and Read | " ..
 	                  "+/-/=: Add, remove, toggle tag | o: Sort | dd: Delete"
+	vim.bo[buf].modifiable = true
 	vim.api.nvim_buf_set_lines(buf, 0, 2, false, { hint_text, "" })
 
-	-- Async notmuch search to make the UX non blocking
-	require("notmuch.async").run_notmuch_search(search, buf, function()
+	require("notmuch.async").run_notmuch_search(search, { buf = buf, lbegin = 1 }, function()
 		-- Check if buffer is still valid (might have been deleted during refresh)
-		if not vim.api.nvim_buf_is_valid(buf) then
-			return
+		if not vim.api.nvim_buf_is_valid(buf) then return end
+		-- restore cursor position
+		if jumptothreadid then
+			vim.fn.search(jumptothreadid)
 		end
-		-- Completion logic
-		local line_count = vim.api.nvim_buf_line_count(buf)
-		if line_count > 1 then num_threads_found = line_count - 1 end
-		vim.fn.search(jumptothreadid)
 	end)
 
-	-- Set cursor at head of buffer, declare filetype, and disable modifying
-	vim.api.nvim_win_set_cursor(0, { 1, 0 })
+	-- remove tail
 	vim.api.nvim_buf_set_lines(buf, -2, -1, true, {})
+	-- set options
 	vim.bo.filetype = "notmuch-threads"
 	vim.bo.modifiable = false
 end
