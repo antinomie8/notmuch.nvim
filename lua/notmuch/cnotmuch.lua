@@ -360,18 +360,17 @@ local function create_query(query, db)
 	}
 end
 
----@brief Opens a Notmuch database. Entry point into the api.
----@path: Directory where the Notmuch database is stored.
----@mode: Read/write mode. Either 0 for read or 1 for read/write.
+---Opens a Notmuch database. Entry point into the api.
+---@param path string  Directory where the Notmuch database is stored.
+---@param mode integer Read/write mode. Either 0 for read or 1 for read/write.
 local function open_database(path, mode)
-	---@alias NotmuchDatabase ffi.cdata*
 	local db = ffi.new("notmuch_database_t*[1]")
-	local res
 
-	res = nm.notmuch_database_open_with_config(path, mode, nil, nil, db, nil)
+	local res = nm.notmuch_database_open_with_config(path, mode, nil, nil, db, nil)
 
 	assert(res == 0, "Error opening database with err=" .. res)
 	return {
+		---@alias NotmuchDatabase ffi.cdata*
 		_db = db[0],
 		create_query = function(query) return create_query(query, db[0]) end,
 		get_all_tags = function() return get_all_tags(db[0]) end,

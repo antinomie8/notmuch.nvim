@@ -1,14 +1,10 @@
 local t = {}
-local v = vim.api
-local thread = require("notmuch.thread")
-local u = require("notmuch.util")
 
 local config = require("notmuch.config")
 
-local function msg_call_method_on_tags(tags, method)
-	local tags = vim.split(tags, "%s+", { trimempty = true })
+local function msg_call_method_on_tags(method, tags)
 	local db = require("notmuch.cnotmuch")(config.options.notmuch_db_path, 1)
-	local id = thread.get_current_message_id()
+	local id = require("notmuch.thread").get_current_message_id()
 	if id == nil then return end
 	local msg = db.get_message(id)
 	for i, tag in pairs(tags) do
@@ -17,22 +13,26 @@ local function msg_call_method_on_tags(tags, method)
 	db.close()
 end
 
+---@param tags table<string>
 function t.msg_add_tag(tags)
-	msg_call_method_on_tags(tags, "add_tag")
+	msg_call_method_on_tags("add_tag", tags)
 end
 
+---@param tags table<string>
 function t.msg_rm_tag(tags)
-	msg_call_method_on_tags(tags, "rm_tag")
+	msg_call_method_on_tags("rm_tag", tags)
 end
 
+---@param tags table<string>
 function t.msg_toggle_tag(tags)
-	msg_call_method_on_tags(tags, "toggle_tag")
+	msg_call_method_on_tags("toggle_tag", tags)
 end
 
-local function thread_call_method_on_tags(tags, startlinenr, endlinenr, method)
-	startlinenr = startlinenr or v.nvim_win_get_cursor(0)[1]
+---@param tags table<string>
+local function thread_call_method_on_tags(method, tags, startlinenr, endlinenr)
+	vim.notify(vim.inspect({ startlinenr, endlinenr }))
+	startlinenr = startlinenr or vim.api.nvim_win_get_cursor(0)[1]
 	endlinenr = endlinenr or startlinenr
-	local tags = vim.split(tags, "%s+", { trimempty = true })
 	local db = require("notmuch.cnotmuch")(config.options.notmuch_db_path, 1)
 	for linenr = startlinenr, endlinenr do
 		local line = vim.fn.getline(linenr)
@@ -46,16 +46,19 @@ local function thread_call_method_on_tags(tags, startlinenr, endlinenr, method)
 	db.close()
 end
 
+---@param tags table<string>
 function t.thread_add_tag(tags, startlinenr, endlinenr)
-	thread_call_method_on_tags(tags, startlinenr, endlinenr, "add_tag")
+	thread_call_method_on_tags("add_tag", tags, startlinenr, endlinenr)
 end
 
+---@param tags table<string>
 function t.thread_rm_tag(tags, startlinenr, endlinenr)
-	thread_call_method_on_tags(tags, startlinenr, endlinenr, "rm_tag")
+	thread_call_method_on_tags("rm_tag", tags, startlinenr, endlinenr)
 end
 
+---@param tags table<string>
 function t.thread_toggle_tag(tags, startlinenr, endlinenr)
-	thread_call_method_on_tags(tags, startlinenr, endlinenr, "toggle_tag")
+	thread_call_method_on_tags("toggle_tag", tags, startlinenr, endlinenr)
 end
 
 return t

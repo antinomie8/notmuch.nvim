@@ -2,30 +2,28 @@ vim.opt_local.wrap = false
 
 vim.api.nvim_buf_create_user_command(0, "DelThread", function(arg)
 	local line1, line2 = arg.line1, arg.line2
-	require("notmuch.tag").thread_add_tag("del", line1, line2)
-	require("notmuch.tag").thread_rm_tag("inbox", line1, line2)
-	vim.opt_local.modifiable = true
-	vim.api.nvim_buf_set_lines(0, math.min(line1, line2) - 1, math.max(line1, line2), true, {})
-	vim.opt_local.modifiable = false
+	require("notmuch.tag").thread_add_tag({ "del" }, line1, line2)
+	require("notmuch.tag").thread_rm_tag({ "inbox" }, line1, line2)
+	require("notmuch.refresh").refresh_search_buffer()
 end, {
 	range = true,
 })
 vim.api.nvim_buf_create_user_command(0, "TagAdd", function(arg)
-	require("notmuch.tag").thread_add_tag(arg.args, arg.line1, arg.line2)
+	require("notmuch.tag").thread_add_tag(arg.fargs, arg.line1, arg.line2)
 end, {
 	complete = require("notmuch.completion").comp_tags,
 	range = true,
 	nargs = "+",
 })
 vim.api.nvim_buf_create_user_command(0, "TagRm", function(arg)
-	require("notmuch.tag").thread_rm_tag(arg.args, arg.line1, arg.line2)
+	require("notmuch.tag").thread_rm_tag(arg.fargs, arg.line1, arg.line2)
 end, {
 	complete = require("notmuch.completion").comp_tags,
 	range = true,
 	nargs = "+",
 })
 vim.api.nvim_buf_create_user_command(0, "TagToggle", function(arg)
-	require("notmuch.tag").thread_toggle_tag(arg.args)
+	require("notmuch.tag").thread_toggle_tag(arg.fargs, arg.line1, arg.line2)
 end, {
 	complete = require("notmuch.completion").comp_tags,
 	nargs = "+",

@@ -10,19 +10,19 @@ if vim.startswith(vim.fs.basename(vim.api.nvim_buf_get_name(0)), "thread:") then
 	end
 
 	vim.api.nvim_buf_create_user_command(0, "TagAdd", function(arg)
-		require("notmuch.tag").thread_add_tag(arg.args)
+		require("notmuch.tag").thread_add_tag(arg.fargs)
 	end, {
 		complete = require("notmuch.completion").comp_tags,
 		nargs = "+",
 	})
 	vim.api.nvim_buf_create_user_command(0, "TagRm", function(arg)
-		require("notmuch.tag").thread_rm_tag(arg.args)
+		require("notmuch.tag").thread_rm_tag(arg.fargs)
 	end, {
 		complete = require("notmuch.completion").comp_tags,
 		nargs = "+",
 	})
 	vim.api.nvim_buf_create_user_command(0, "TagToggle", function(arg)
-		require("notmuch.tag").thread_toggle_tag(arg.args)
+		require("notmuch.tag").thread_toggle_tag(arg.fargs)
 	end, {
 		complete = require("notmuch.completion").comp_tags,
 		nargs = "+",
