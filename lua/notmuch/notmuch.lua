@@ -2,23 +2,24 @@ local nm = {}
 
 local config = require("notmuch.config")
 
--- Launch `notmuch.nvim` landing page
---
--- This function launches the main entry point of the plugin into your notmuch
--- database. You are greeted with a list of all the tags in your database,
--- available for querying and/or counting. First line contains help hints.
---
--- If buffer is already open from before, it will simply load it as active
---
----@usage lua require('notmuch').notmuch_hello()
-nm.notmuch_hello = function()
+---Launch `notmuch.nvim` landing page
+---
+---This function launches the main entry point of the plugin into your notmuch
+---database. You are greeted with a list of all the tags in your database,
+---available for querying and/or counting. First line contains help hints.
+---
+---If buffer is already open from before, it will simply load it as active
+---
+---```lua
+---require('notmuch').notmuch_tags()
+---```
+function nm.notmuch_tags()
 	local bufno = vim.fn.bufnr("Tags")
 	if bufno ~= -1 then
 		vim.api.nvim_win_set_buf(0, bufno)
 	else
 		nm.show_all_tags() -- Move to tag.lua
 	end
-	print("Welcome to Notmuch.nvim! Choose a tag to search it.")
 end
 
 ---Conducts a `notmuch search` operation
@@ -40,6 +41,7 @@ function nm.search_terms(search, jumptothreadid)
 		nm.show_thread(search)
 		return
 	end
+
 	-- Use exact match for buffer name to avoid partial matches
 	-- Escape special regex characters in the search term
 	local buf
@@ -183,15 +185,15 @@ nm.count = function(search)
 	return "[" .. search .. "]: " .. count_threads .. " threads"
 end
 
---- Opens the landing/homepage for Notmuch: the `hello` page
+--- Opens the landing/homepage for Notmuch: the tags list page
 --
 -- This function opens the main landing page for `notmuch.nvim`. It essentially
 -- consists of all the tags in the `notmuch` database for the user to select or
 -- count. They can also search from here etc.
 --
 ---@usage
--- nm.show_all_tags() -- opens the `hello` page
-nm.show_all_tags = function()
+-- nm.show_all_tags() -- opens the tags list buffer
+function nm.show_all_tags()
 	-- Fetch all tags available in the notmuch database
 	local db = require("notmuch.cnotmuch")(config.options.notmuch_db_path, 0)
 	local tags = db.get_all_tags()
@@ -210,7 +212,7 @@ nm.show_all_tags = function()
 	-- Clean up the buffer and set the cursor to the head
 	vim.api.nvim_win_set_cursor(0, { 3, 0 })
 	vim.api.nvim_buf_set_lines(buf, -2, -1, true, {})
-	vim.bo.filetype = "notmuch-hello"
+	vim.bo.filetype = "notmuch-tags"
 	vim.bo.modifiable = false
 end
 

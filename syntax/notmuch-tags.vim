@@ -1,5 +1,5 @@
-syntax match nmHelloTags "^.*$"
-highlight link nmHelloTags Include
+syntax match nmTags "^.*$"
+highlight link nmTags Function
 
 " ----------------------------------------------------------
 " nmHints:

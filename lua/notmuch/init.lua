@@ -2,8 +2,8 @@ local M = {}
 
 local config = require("notmuch.config")
 
----@param opts table: Table of options as passed by the user with their config setup
-M.setup = function(opts)
+---@param opts NotmuchConfig user options
+function M.setup(opts)
 	local success = config.setup(opts)
 
 	if not success then
@@ -12,7 +12,7 @@ M.setup = function(opts)
 
 	-- setup user commands
 	vim.api.nvim_create_user_command("Notmuch", function()
-		require("notmuch.notmuch").notmuch_hello()
+		require("notmuch.notmuch").notmuch_tags()
 	end, { desc = "notmuch.nvim landing page" })
 	vim.api.nvim_create_user_command("Inbox", function(arg)
 		if #arg.fargs ~= 0 then

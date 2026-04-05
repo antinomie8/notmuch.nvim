@@ -35,15 +35,15 @@ end
 
 -- Refreshes the notmuch landing page buffer
 --
--- This function refreshes the `notmuch-hello` landing page buffer by deleting
+-- This function refreshes the `notmuch-tags` landing page buffer by deleting
 -- the original buffer (wipeout to flush it from memory) and invokes the
 -- `show_all_tags()` function again. This is useful when you know changes have
 -- been made to the buffer contents and want to reflect it accordingly
 --
 ---@usage
 -- -- Normally invoked by pressing `r` in the Tags buffer
--- lua require('notmuch.refresh').refresh_hello_buffer()
-r.refresh_hello_buffer = function()
+-- lua require('notmuch.refresh').refresh_tags_buffer()
+function r.refresh_tags_buffer()
 	v.nvim_command("bwipeout")
 	nm.show_all_tags()
 end
