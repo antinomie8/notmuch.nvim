@@ -7,9 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+### Changed
+- make run_notmuch_search overwrite threads instead of deleting and adding
+  them back to avoid cursor flicker
+- use vim.ui.select instead of vim.fn.confirm
+- make the cursor jump to the first tag when opening a thread
+- if a thread contains a single message, open it directly
 
+### Fixed
 - Attachment filenames with `/` characters are now sanitized to prevent directory path errors when saving
+- quit Neovim when pressing <q> if the last named open buffer is from the plugin
+
+### Performance
+- Don't eagerly require lua modules when it can be avoided
 
 ## [0.3.0] - 2026-02-11
 
