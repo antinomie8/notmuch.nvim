@@ -179,10 +179,18 @@ function thread_obj:get_tags()
 	self.tags = {}
 	local tags = nm.notmuch_thread_get_tags(self._thread)
 	while nm.notmuch_tags_valid(tags) == 1 do
-		self.tags[ffi.string(nm.notmuch_tags_get(tags))] = true
+		table.insert(self.tags, ffi.string(nm.notmuch_tags_get(tags)))
 		nm.notmuch_tags_move_to_next(tags)
 	end
 	return self.tags
+end
+
+---@param tag string
+---@return boolean
+function thread_obj:has_tag(tag)
+	self.tags = self.tags or self:get_tags()
+	vim.notify(vim.inspect(self.tags))
+	return vim.tbl_contains(self.tags, tag)
 end
 
 -- Adds tag to all messages inside a thread.
@@ -208,6 +216,18 @@ function thread_obj:rm_tag(tag)
 		assert(res == 0, "Error removing tag:" .. tag .. ". err=" .. res)
 		nm.notmuch_message_tags_to_maildir_flags(message)
 		nm.notmuch_messages_move_to_next(messages)
+	end
+end
+
+-- Toggles a tag to a message.
+function thread_obj:toggle_tag(tag)
+	vim.notify(vim.inspect(tag))
+	if self:has_tag(tag) then
+		vim.notify(vim.inspect("has"))
+		self:rm_tag(tag)
+	else
+		vim.notify(vim.inspect("has not"))
+		self:add_tag(tag)
 	end
 end
 
@@ -244,10 +264,17 @@ function message_obj:get_tags()
 	self.tags = {}
 	local tags = nm.notmuch_message_get_tags(self._msg)
 	while nm.notmuch_tags_valid(tags) == 1 do
-		self.tags[ffi.string(nm.notmuch_tags_get(tags))] = true
+		table.insert(self.tags, ffi.string(nm.notmuch_tags_get(tags)))
 		nm.notmuch_tags_move_to_next(tags)
 	end
 	return self.tags
+end
+
+---@param tag string
+---@return boolean
+function message_obj:has_tag(tag)
+	self.tags = self.tags or self:get_tags()
+	return vim.tbl_contains(self.tags, tag)
 end
 
 -- Add a tag to a message.
@@ -262,6 +289,15 @@ function message_obj:rm_tag(tag)
 	local res = nm.notmuch_message_remove_tag(self._msg, tag)
 	nm.notmuch_message_tags_to_maildir_flags(self._msg)
 	assert(res == 0, "Error removing tag:" .. tag .. ". err=" .. res)
+end
+
+-- Toggles a tag to a message.
+function message_obj:toggle_tag(tag)
+	if self:has_tag(tag) then
+		self:rm_tag(tag)
+	else
+		self:add_tag(tag)
+	end
 end
 
 ---@brief Get a message object from an id: straight from the database.

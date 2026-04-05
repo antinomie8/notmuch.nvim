@@ -83,26 +83,6 @@ function u.validate_attachment_file(path)
   return true, nil
 end
 
--- there is a better way to do this !!!
--- Splits a string given a delimiter
---
--- This function takes in a string and splits it into a table of strings based
--- on some delimiter given by the caller, and returns the result table.
---
----@param s string: input string
----@param delim string: delimiter string (can be char or more complex)
---
----@returns out table: table of strings as split by the function given delim
-function u.split(s, delim)
-  local out = {}
-  local i = 1
-  for entry in string.gmatch(s, delim) do
-    out[i] = entry
-    i = i + 1
-  end
-  return out
-end
-
 -- Splits a string by a given length
 --
 -- This function takes in a string and splits it into a table of strings based
