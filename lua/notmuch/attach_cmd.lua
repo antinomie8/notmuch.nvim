@@ -2,7 +2,7 @@ local a = {}
 local u = require("notmuch.util")
 local v = vim.api
 
-a.attach_handler = function(buf)
+function a.attach_handler(buf)
 	return function(opts)
 		local attachments = v.nvim_buf_get_var(buf, "notmuch_attachments")
 
@@ -34,7 +34,7 @@ a.attach_handler = function(buf)
 	end
 end
 
-a.remove_handler = function(buf)
+function a.remove_handler(buf)
 	return function(opts)
 		local attachments = v.nvim_buf_get_var(buf, "notmuch_attachments")
 		local filepath = vim.fn.expand(opts.args)
@@ -62,13 +62,13 @@ a.remove_handler = function(buf)
 	end
 end
 
-a.remove_completion = function(buf)
+function a.remove_completion(buf)
 	return function()
 		return v.nvim_buf_get_var(buf, "notmuch_attachments")
 	end
 end
 
-a.list_handler = function(buf)
+function a.list_handler(buf)
 	return function()
 		local attachments = v.nvim_buf_get_var(buf, "notmuch_attachments")
 

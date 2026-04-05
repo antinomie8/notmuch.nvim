@@ -12,7 +12,7 @@ local v = vim.api
 ---@param paths table: list of file path strings
 ---@return table: table of mime attachments
 ---@throws error if any attachment file is invalid
-m.create_mime_attachments = function(paths)
+function m.create_mime_attachments(paths)
 	local mimes = {}
 	local invalid_files = {}  -- Collect all errors for better UX
 
@@ -69,7 +69,7 @@ end
 ---@param lines string: input string
 --
 ---@returns out table: table of key and values
-m.get_msg_attributes = function(lines)
+function m.get_msg_attributes(lines)
 	local attributes = {}
 	local msg = {}
 	local in_headers = true
@@ -148,7 +148,7 @@ m.example_mime = {
 ---@param path string: input string
 --
 ---@returns out string: string of mime type of file given
-m.get_mime_type = function(path)
+function m.get_mime_type(path)
 	local output = vim.fn.system({ "file", "--brief", "--mime-type", path })
 	return vim.fn.trim(output)
 end
@@ -160,7 +160,7 @@ end
 ---@param length int: input int
 --
 ---@returns out string: string of pseudo random characters
-m.get_boundary = function(length)
+function m.get_boundary(length)
 	if length > 0 then
 		return m.get_boundary(length - 1) .. string.char(math.random(65, 65 + 25))
 	else
@@ -176,7 +176,7 @@ end
 ---@param mime_table table: input table
 --
 ---@returns out table: list of string
-m.make_mime_msg = function(mime_table)
+function m.make_mime_msg(mime_table)
 	local mime = {}
 	if mime_table.mime then
 		local boundary = m.get_boundary(32)
@@ -268,7 +268,7 @@ end
 -- a temporary testing function
 -- writes the final mime email to the buffer
 -- so you can see what the result looks like
-m.mime_test = function()
+function m.mime_test()
 	local lines = m.make_mime_msg(m.example_mime)
 
 	local buf = v.nvim_create_buf(true, false)

@@ -2,7 +2,7 @@ local H = {}
 
 --- Default handler for opening attachments externally
 ---@param attachment table Table with 'path' field containing file path
-H.default_open_handler = function(attachment)
+function H.default_open_handler(attachment)
   local path = attachment.path
 
   -- Detect OS and choose appropriate command
@@ -26,7 +26,7 @@ end
 --- Default handler for viewing attachments in the floating window viewer
 ---@param attachment table Table with 'path' field containing file path
 ---@return string Text content to display in floating window
-H.default_view_handler = function(attachment)
+function H.default_view_handler(attachment)
   local path = attachment.path -- Already expanded, careful to escape
 
   -- Helper function to "try" commands in order until one works

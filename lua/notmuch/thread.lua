@@ -410,9 +410,9 @@ end
 --- output, and transforms it into formatted buffer lines with fold markers.
 ---
 --- @param threadid string Thread ID (without 'thread:' prefix)
---- @return table lines Array of strings ready for buffer display
---- @return table thread_metadata Thread metadata to be exported to buffer var
-T.show_thread = function(threadid)
+--- @return table<string> lines Array of strings ready for buffer display
+--- @return NotmuchThreadMetadata thread_metadata Thread metadata to be exported to buffer var
+function T.show_thread(threadid)
 	-- Run `notmuch show` with JSON format
 	local res = vim.system({
 		"notmuch", "show",
@@ -455,6 +455,8 @@ T.show_thread = function(threadid)
 	local root_msg = thread[1][1]
 
 	-- Initialize `vim.b.notmuch_thread` accumulator
+
+	---@class NotmuchThreadMetadata
 	local metadata = {
 		thread = {
 			id = threadid,

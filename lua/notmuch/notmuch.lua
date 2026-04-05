@@ -86,7 +86,7 @@ end
 --
 -- We do this instantly instead of running `notmuch search --sort` to save time
 -- especially when it comes to large results with thousands of thread.
-nm.reverse_sort_threads = function()
+function nm.reverse_sort_threads()
 	-- Get all lines, disregarding top-level hints line
 	local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
 	local hints = table.remove(lines, 1)
@@ -111,14 +111,14 @@ end
 -- This function fetches all the messages in the input thread's ID from the
 -- notmuch database and displays them in the mail.vim view.
 --
----@param s string: The string to fetch the threadid from (individual line, or
+---@param s string?: The string to fetch the threadid from (individual line, or
 --                  thread full form)
 ---@return true|nil: `true` for successful display, nil for any error
 --
 ---@usage
 -- nm.show_thread("thread:00000000000003aa")
 -- nm.show_thread(vim.api.nvim_get_current_line())
-nm.show_thread = function(s)
+function nm.show_thread(s)
 	-- Fetch the threadid from the input `s` or from current line
 	local threadid = ""
 	if s == nil then
@@ -177,7 +177,7 @@ end
 --
 ---@usage
 -- lua require('notmuch').count('tag:inbox') -- > '999'
-nm.count = function(search)
+function nm.count(search)
 	local db = require("notmuch.cnotmuch")(config.options.notmuch_db_path, 0)
 	local q = db.create_query(search)
 	local count_threads = q.count_threads()

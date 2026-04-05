@@ -153,8 +153,8 @@ ffi.cdef([[
   notmuch_message_tags_to_maildir_flags (notmuch_message_t *message);
 ]])
 
----@brief Returns a table of all tags found in the given database
----@param db NotmuchDatabase User's Notmuch database object.
+---@param db NotmuchDatabase user's Notmuch database
+---@return table<string> out all tags found in the given database
 local function get_all_tags(db)
 	local out = {}
 	local tags = nm.notmuch_database_get_all_tags(db)
@@ -165,9 +165,11 @@ local function get_all_tags(db)
 	return out
 end
 
+---@class NotmuchThread
+---@field _thread string
 local thread_obj = {}
 
--- Returns subject line string of a thread.
+---@return string subject subject line of a thread.
 function thread_obj:get_subject()
 	return ffi.string(nm.notmuch_thread_get_subject(self._thread))
 end
@@ -232,9 +234,12 @@ local function get_threads(query)
 	return out
 end
 
+---@class NotmuchMessage
+---@field _msg string
 local message_obj = {}
 
--- Return a table of tags attached to a message.
+---Return a table of tags attached to a message.
+---@return table<string>
 function message_obj:get_tags()
 	self.tags = {}
 	local tags = nm.notmuch_message_get_tags(self._msg)

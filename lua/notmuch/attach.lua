@@ -69,7 +69,7 @@ end
 -- open_handler callback (typically xdg-open or similar).
 --
 ---@return nil
-a.open_attachment_part = function()
+function a.open_attachment_part()
   local filepath = a.save_attachment_part("/tmp", false)
 
   if not filepath then
@@ -86,7 +86,7 @@ end
 -- Press 'q' to close the window.
 --
 ---@return nil
-a.view_attachment_part = function()
+function a.view_attachment_part()
   -- Save to temp directory without prompting
   local filepath = a.save_attachment_part("/tmp", false)
 
@@ -227,7 +227,7 @@ end
 ---@param savedir string|nil Directory to save to (defaults to cwd when prompting, '.' otherwise)
 ---@param prompt_user boolean Whether to prompt for save location
 ---@return string|nil filepath Path to saved file, or nil if cancelled/failed
-a.save_attachment_part = function(savedir, prompt_user)
+function a.save_attachment_part(savedir, prompt_user)
   -- Get part details from current cursor location
   local part = get_part_at_cursor()
 
@@ -333,7 +333,7 @@ end
 ---
 --- Multipart/* containers are automatically filtered out and only leaf nodes
 --- (openable parts) are displayed with their notmuch part IDs for direct access.
-a.get_attachments_from_cursor_msg = function()
+function a.get_attachments_from_cursor_msg()
   -- Get msg ID from cursor location and validate
   local id = thread.get_current_message_id()
   if id == nil then return nil end
@@ -367,7 +367,7 @@ a.get_attachments_from_cursor_msg = function()
   vim.bo.modifiable = false
 end
 
-a.get_urls_from_cursor_msg = function()
+function a.get_urls_from_cursor_msg()
   if vim.fn.exists(":YTerm") == 0 then
     print("Can't launch URL selector (:YTerm command not found)")
     return nil
@@ -377,7 +377,7 @@ a.get_urls_from_cursor_msg = function()
   v.nvim_command('YTerm "notmuch show id:' .. id .. ' | urlextract"')
 end
 
-a.follow_github_patch = function(line)
+function a.follow_github_patch(line)
   -- https://github.com/neomutt/neomutt/pull/2774.patch
   local link = string.match(line, "http[s]://github%.com/.+/.+/pull/%d+%.patch")
   if link == nil then

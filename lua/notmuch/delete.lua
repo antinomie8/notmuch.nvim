@@ -7,7 +7,7 @@ local function confirm_purge()
 			-- remove keymap
 			vim.keymap.del("n", "DD", { buffer = true })
 
-			-- purge
+			-- search for mails to purge
 			vim.system(
 				{ "notmuch", "search", "--output=files", "--format=text0", "tag:del", "and", "tag:/./" },
 				function(obj)
@@ -16,16 +16,18 @@ local function confirm_purge()
 						vim.uv.fs_unlink(file)
 					end
 					-- reindex mails
-					vim.system({ "notmuch", "new" }, vim.schedule_wrap(require("notmuch.refresh").refresh_search_buffer))
+					vim.system({ "notmuch", "new" }, vim.schedule_wrap(
+						require("notmuch.refresh").refresh_search_buffer
+					))
 				end
 			)
 		end
 	end)
 end
 
-d.purge_del = function()
+function d.purge_del()
 	require("notmuch.notmuch").search_terms("tag:del and tag:/./")
-	-- Set keymap for purgin
+
 	vim.keymap.set("n", "DD", function()
 		confirm_purge()
 	end, { buffer = true })

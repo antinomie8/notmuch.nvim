@@ -11,7 +11,7 @@ local nm = require("notmuch.notmuch")
 ---@usage
 -- -- Normally invoked by pressing `r` in the search results buffer
 -- lua require('notmuch.refresh').refresh_search_buffer()
-r.refresh_search_buffer = function()
+function r.refresh_search_buffer()
 	local line = v.nvim_get_current_line()
 	local threadid = string.match(line, "%S+", 8)
 	local search = string.match(v.nvim_buf_get_name(0), "%a+:%C+")
@@ -27,7 +27,7 @@ end
 ---@usage
 -- -- Normally invoked by pressing `r` in the thread view buffer
 -- lua require('notmuch.refresh').refresh_thread_buffer()
-r.refresh_thread_buffer = function()
+function r.refresh_thread_buffer()
 	local thread = string.match(v.nvim_buf_get_name(0), "thread:%C+")
 	v.nvim_command("bwipeout")
 	nm.show_thread(thread)

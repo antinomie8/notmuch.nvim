@@ -6,25 +6,25 @@ local v = vim.api
 
 local config = require("notmuch.config")
 
--- Prompt confirmation before sending an email
---
+---Prompt confirmation before sending an email
+---
 ---@param cb function callback if user confirms
 local function confirm_sendmail(cb)
-	vim.ui.select({ "Yes", "No" }, {}, function(choice)
+	vim.ui.select({ "Yes", "No" }, { prompt = "Send mail ?" }, function(choice)
 		if choice == "Yes" then
 			cb()
 		end
 	end)
 end
 
---- Builds plain text msg from contents into single-part MIME message of main
---- msg buffer and outputs it in place.
+---Builds plain text msg from contents into single-part MIME message of main
+---msg buffer and outputs it in place.
 ---
---- If the composed email has no attachments, it makes more sense (cheaper and
---- more idiomatic) to send as a single part (not MIME `multipart/mixed`) of
---- type `text/plain; charset=UTF-8`.
+---If the composed email has no attachments, it makes more sense (cheaper and
+---more idiomatic) to send as a single part (not MIME `multipart/mixed`) of
+---type `text/plain; charset=UTF-8`.
 ---
---- @param buf integer: buffer ID of the message compose file
+---@param buf integer: buffer ID of the message compose file
 local build_plain_msg = function(buf)
 	local main_lines = v.nvim_buf_get_lines(buf, 0, -1, false)
 
@@ -159,7 +159,7 @@ end
 --
 ---@usage
 --   require('notmuch.send').sendmail('/tmp/my_new_email.eml')
-s.sendmail = function(filename)
+function s.sendmail(filename)
 	if not vim.uv.fs_stat(filename) then
 		vim.notify("❌ Email file not found: " .. filename, vim.log.levels.ERROR)
 		return false
@@ -234,7 +234,7 @@ end
 ---@usage
 --   -- Typically you would just press `R` on a message in a thread
 --   require('notmuch.send').reply()
-s.reply = function()
+function s.reply()
 	-- Get msg id of the mail to be replied to
 	local id = thread.get_current_message_id()
 	if not id then return end
@@ -302,18 +302,18 @@ s.reply = function()
 	end, { buffer = true })
 end
 
--- Compose a new email
---
--- This function creates a new email for the user to edit, with the standard
--- message headers and body. The mail content is stored in `/tmp/` so the user
--- can come back to it later if needed.
---
+---Compose a new email
+---
+---This function creates a new email for the user to edit, with the standard
+---message headers and body. The mail content is stored in `/tmp/` so the user
+---can come back to it later if needed.
+---
 ---@param to string? recipient address
---
+---
 ---@usage
 --   -- Typically you can run this with `:ComposeMail` or pressing `C`
 --   require('notmuch.send').compose()
-s.compose = function(to)
+function s.compose(to)
 	to = to or ""
 	local compose_filename = vim.fn.tempname() .. "-compose.eml"
 

@@ -74,7 +74,7 @@ end
 
 ---@param opts NotmuchConfig user configuration
 ---@return boolean success wether the configuration loading succeeded
-config.setup = function(opts)
+function config.setup(opts)
 	local options = opts or {}
 	local defaults = get_defaults()
 

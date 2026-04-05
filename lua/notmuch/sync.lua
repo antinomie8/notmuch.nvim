@@ -4,7 +4,7 @@ local config = require("notmuch.config")
 local current_sync_job = nil
 
 -- Public job management functions
-s.create_job = function(cmd, opts)
+function s.create_job(cmd, opts)
   opts = opts or {}
   local job_id = vim.fn.jobstart(cmd, {
     on_stdout = opts.on_stdout,
@@ -16,7 +16,7 @@ s.create_job = function(cmd, opts)
   return job_id
 end
 
-s.stop_job = function(job_id)
+function s.stop_job(job_id)
   if job_id then
     vim.fn.jobstop(job_id)
     return true
@@ -24,38 +24,38 @@ s.stop_job = function(job_id)
   return false
 end
 
-s.is_job_running = function(job_id)
+function s.is_job_running(job_id)
   return job_id and vim.fn.jobwait({ job_id }, 0)[1] == -1
 end
 
-s.get_current_sync_job = function()
+function s.get_current_sync_job()
   return current_sync_job
 end
 
-s.set_current_sync_job = function(job_id)
+function s.set_current_sync_job(job_id)
   current_sync_job = job_id
 end
 
 -- UI-specific functions
 local ui = {}
 
-ui.safe_buf_set_option = function(buf, name, value)
+function ui.safe_buf_set_option(buf, name, value)
   if vim.api.nvim_buf_is_valid(buf) then
     vim.bo[buf][name] = value
   end
 end
 
-ui.safe_buf_set_lines = function(buf, start, end_, strict, lines)
+function ui.safe_buf_set_lines(buf, start, end_, strict, lines)
   if vim.api.nvim_buf_is_valid(buf) then
     vim.api.nvim_buf_set_lines(buf, start, end_, strict, lines)
   end
 end
 
-ui.find_sync_buffer = function()
+function ui.find_sync_buffer()
   return vim.fn.bufnr("notmuch-sync")
 end
 
-ui.clear_buffer = function(buf)
+function ui.clear_buffer(buf)
   if vim.api.nvim_buf_is_valid(buf) then
     ui.safe_buf_set_option(buf, "modifiable", true)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, {})
@@ -63,7 +63,7 @@ ui.clear_buffer = function(buf)
   end
 end
 
-ui.setup_cancel_keymap = function(buf, job_id, opts)
+function ui.setup_cancel_keymap(buf, job_id, opts)
   opts = opts or {}
   vim.keymap.set("n", "<C-c>", function()
     if s.is_job_running(job_id) and s.stop_job(job_id) then
@@ -78,7 +78,7 @@ ui.setup_cancel_keymap = function(buf, job_id, opts)
   end, { buffer = buf, desc = opts.desc or "Cancel job" })
 end
 
-ui.switch_to_buffer = function(buf)
+function ui.switch_to_buffer(buf)
   local win = vim.fn.bufwinid(buf)
   if win ~= -1 then
     vim.api.nvim_set_current_win(win)
@@ -87,7 +87,7 @@ ui.switch_to_buffer = function(buf)
   return false
 end
 
-ui.create_sync_buffer = function()
+function ui.create_sync_buffer()
   vim.cmd("botright 10new")
   local buf = vim.api.nvim_get_current_buf()
   vim.bo[buf].buftype = "nofile"
@@ -100,7 +100,7 @@ end
 
 s.ui = ui
 
-s.sync_maildir = function()
+function s.sync_maildir()
   -- Check if sync is already running
   if current_sync_job then
     local buf = ui.find_sync_buffer()

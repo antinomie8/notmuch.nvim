@@ -5,7 +5,7 @@ local u = require("notmuch.util")
 
 local config = require("notmuch.config")
 
-t.msg_add_tag = function(tags)
+function t.msg_add_tag(tags)
 	local t = u.split(tags, "%S+")
 	local db = require("notmuch.cnotmuch")(config.options.notmuch_db_path, 1)
 	local id = thread.get_current_message_id()
@@ -18,7 +18,7 @@ t.msg_add_tag = function(tags)
 	print("+(" .. tags .. ")")
 end
 
-t.msg_rm_tag = function(tags)
+function t.msg_rm_tag(tags)
 	local t = u.split(tags, "%S+")
 	local db = require("notmuch.cnotmuch")(config.options.notmuch_db_path, 1)
 	local id = thread.get_current_message_id()
@@ -31,7 +31,7 @@ t.msg_rm_tag = function(tags)
 	print("-(" .. tags .. ")")
 end
 
-t.msg_toggle_tag = function(tags)
+function t.msg_toggle_tag(tags)
 	local t = u.split(tags, "%S+")
 	local db = require("notmuch.cnotmuch")(config.options.notmuch_db_path, 1)
 	local id = thread.get_current_message_id()
@@ -50,7 +50,7 @@ t.msg_toggle_tag = function(tags)
 	db.close()
 end
 
-t.thread_add_tag = function(tags, startlinenr, endlinenr)
+function t.thread_add_tag(tags, startlinenr, endlinenr)
 	startlinenr = startlinenr or v.nvim_win_get_cursor(0)[1]
 	endlinenr = endlinenr or startlinenr
 	local t = u.split(tags, "%S+")
@@ -68,7 +68,7 @@ t.thread_add_tag = function(tags, startlinenr, endlinenr)
 	print("+(" .. tags .. ")")
 end
 
-t.thread_rm_tag = function(tags, startlinenr, endlinenr)
+function t.thread_rm_tag(tags, startlinenr, endlinenr)
 	startlinenr = startlinenr or v.nvim_win_get_cursor(0)[1]
 	endlinenr = endlinenr or startlinenr
 	local t = u.split(tags, "%S+")
@@ -86,7 +86,7 @@ t.thread_rm_tag = function(tags, startlinenr, endlinenr)
 	print("-(" .. tags .. ")")
 end
 
-t.thread_toggle_tag = function(tags, startlinenr, endlinenr)
+function t.thread_toggle_tag(tags, startlinenr, endlinenr)
 	startlinenr = startlinenr or v.nvim_win_get_cursor(0)[1]
 	endlinenr = endlinenr or startlinenr
 	local t = u.split(tags, "%S+")
