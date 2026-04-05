@@ -121,7 +121,7 @@ end
 function nm.show_thread(s)
 	-- Fetch the threadid from the input `s` or from current line
 	local threadid = ""
-	if s == nil then
+	if not s then
 		-- fetch from the current line since no input passed
 		local line = vim.api.nvim_get_current_line()
 		if line:find("Hints:") == 1 then
@@ -134,7 +134,7 @@ function nm.show_thread(s)
 		threadid = string.match(s, "[0-9a-z]+", 7)
 	end
 
-	-- Open buffer if already exists, otherwise create new `buf`
+	-- Open buffer if already exists, otherwise create a new one
 	local bufno = vim.fn.bufnr("thread:" .. threadid)
 	if bufno ~= -1 then
 		vim.api.nvim_win_set_buf(0, bufno)
@@ -144,7 +144,7 @@ function nm.show_thread(s)
 	vim.api.nvim_buf_set_name(buf, "thread:" .. threadid)
 	vim.api.nvim_win_set_buf(0, buf)
 
-	-- Get output (JSON parsed) and display lines in buffer
+	-- Get output and display lines in buffer
 	local lines, metadata = require("notmuch.thread").show_thread(threadid)
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 
@@ -153,13 +153,13 @@ function nm.show_thread(s)
 	vim.b.notmuch_messages = metadata.messages
 
 	-- Insert hint message at the top of the buffer
-	local hint_text =
-	"Hints: <Enter>: Toggle fold message | <Tab>: Next message | <S-Tab>: Prev message | q: Close | a: See attachment parts"
+	local hint_text = "Hints: <Enter>: Toggle fold message | <Tab>: Next message |"
+	                  .. " <S-Tab>: Prev message | q: Close | a: See attachment parts"
 	vim.api.nvim_buf_set_lines(buf, 0, 0, false, { hint_text, "" })
 
-	-- Place cursor at head of buffer and prepare display and disable modification
-	vim.api.nvim_buf_set_lines(buf, -2, -1, true, {})
-	vim.api.nvim_win_set_cursor(0, { 1, 0 })
+	vim.api.nvim_buf_set_lines(buf, -2, -1, true, {}) -- remove last line from buffer
+	vim.api.nvim_win_set_cursor(0, { 4, 0 }) -- jump to first thread
+	-- set buffer options
 	vim.bo.filetype = "mail"
 	vim.bo.modifiable = false
 
