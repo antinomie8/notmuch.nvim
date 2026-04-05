@@ -2,6 +2,13 @@ if vim.startswith(vim.fs.basename(vim.api.nvim_buf_get_name(0)), "thread:") then
 	vim.opt_local.foldmethod = "marker"
 	vim.opt_local.foldlevel = 0
 
+	-- open folds if there is only a single message
+	if vim.b.notmuch_messages and #vim.b.notmuch_messages == 1 then
+		vim.schedule(function()
+			vim.cmd.normal({ args = { "zR" }, bang = true })
+		end)
+	end
+
 	vim.api.nvim_buf_create_user_command(0, "TagAdd", function(arg)
 		require("notmuch.tag").thread_add_tag(arg.args)
 	end, {
