@@ -189,7 +189,6 @@ end
 ---@return boolean
 function thread_obj:has_tag(tag)
 	self.tags = self.tags or self:get_tags()
-	vim.notify(vim.inspect(self.tags))
 	return vim.tbl_contains(self.tags, tag)
 end
 
@@ -221,12 +220,9 @@ end
 
 -- Toggles a tag to a message.
 function thread_obj:toggle_tag(tag)
-	vim.notify(vim.inspect(tag))
 	if self:has_tag(tag) then
-		vim.notify(vim.inspect("has"))
 		self:rm_tag(tag)
 	else
-		vim.notify(vim.inspect("has not"))
 		self:add_tag(tag)
 	end
 end

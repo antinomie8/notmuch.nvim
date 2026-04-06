@@ -30,7 +30,6 @@ end
 
 ---@param tags table<string>
 local function thread_call_method_on_tags(method, tags, startlinenr, endlinenr)
-	vim.notify(vim.inspect({ startlinenr, endlinenr }))
 	startlinenr = startlinenr or vim.api.nvim_win_get_cursor(0)[1]
 	endlinenr = endlinenr or startlinenr
 	local db = require("notmuch.cnotmuch")(config.options.notmuch_db_path, 1)
