@@ -65,8 +65,7 @@ end
 
 --- Opens the MIME part at cursor with the configured open_handler.
 --
--- Saves the attachment to /tmp first, then passes the path to the
--- open_handler callback (typically xdg-open or similar).
+-- Saves the attachment to /tmp first, then passes the path to open_handler
 --
 ---@return nil
 function a.open_attachment_part()

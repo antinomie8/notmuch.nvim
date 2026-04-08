@@ -44,7 +44,6 @@ local function get_defaults()
 		notmuch_db_path = db_path,
 		from = name .. " <" .. email .. ">",
 		maildir_sync_cmd = "mbsync -a",
-		open_cmd = "xdg-open",
 		logfile = nil,
 		send = {
 			terminal = false,

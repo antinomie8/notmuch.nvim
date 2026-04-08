@@ -4,23 +4,7 @@ local H = {}
 ---@param attachment table Table with 'path' field containing file path
 function H.default_open_handler(attachment)
   local path = attachment.path
-
-  -- Detect OS and choose appropriate command
-  local open_cmd
-  local sysname = vim.uv.os_uname()
-
-  if sysname.sysname == "Darwin" then
-    open_cmd = "open"
-  elseif sysname.sysname == "Linux" then
-    open_cmd = "xdg-open"
-  elseif sysname.sysname:match("Windows") then
-    open_cmd = "start"
-  else
-    open_cmd = "xdg-open" -- fallback
-  end
-
-  -- Execute
-  vim.system({ open_cmd, path }, { detach = true })
+  vim.ui.open(path)
 end
 
 --- Default handler for viewing attachments in the floating window viewer
